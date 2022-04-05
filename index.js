@@ -1,11 +1,19 @@
-require('dotenv').config();
+require("dotenv").config();
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const client = require('twilio')(accountSid, authToken);
+const express = require("express");
+const cors = require("cors");
+const { send2FA, verify2FA } = require("./functions");
+const app = express();
 
-client.verify.services(process.env.TWILIO_SERVICE_ID)
-             .verifications
-             .create({to: '+19173929054', channel: 'sms'})
-             .then(verification => console.log(verification.sid))
-             .catch(err => console.log(err));
+const port = process.env.PORT || 3000;
+
+app.use(express.json());
+app.use(cors());
+
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
+app.post("/2fa", send2FA);
+app.post("/2fa/verify", verify2FA);
+
+app.listen(port, () => console.log(`Listening on port ${port}`));
